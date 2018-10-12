@@ -1,0 +1,20 @@
+
+sources += micro-ecc/uECC.c
+sources += sha256.c
+
+includes += -I .
+includes += -I micro-ecc
+
+CC_c = gcc
+CC_cpp = g++
+
+CFLAGS = -O2 -g3 -Wall -Wextra -fstack-protector-all $(includes)
+CFLAGS_c = -Wno-unused-parameter -std=gnu11 $(CFLAGS)
+CFLAGS_cpp = -std=gnu++17 $(CFLAGS)
+
+: foreach $(sources) |> $(CC_%e) $(CFLAGS_%e) -c %f -o %o |> output/%B.o {objects}
+: foreach uecc_*.cpp |> $(CC_%e) $(CFLAGS_%e) -c %f -o %o |> output/%B.o
+
+: {objects} output/uecc_sign.o |> $(CC_cpp) %f -o %o |> output/uecc_sign
+: {objects} output/uecc_genkey.o |> $(CC_cpp) %f -o %o |> output/uecc_genkey
+: {objects} output/uecc_verify.o |> $(CC_cpp) %f -o %o |> output/uecc_verify
